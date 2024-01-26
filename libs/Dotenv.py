@@ -15,7 +15,7 @@ class Dotenv:
 
 		return cls._instance
 
-	def _load(self) -> None:
+	def _load(self):
 		try:
 			with open('.env', 'r') as file:
 				for line in file:
@@ -23,7 +23,7 @@ class Dotenv:
 						key, value = map(str.strip, line.split('=', 1))
 						self._data[key] = value
 		except Exception as e:
-			print(f'An error occurred while reading the .env file: {e}')
+			print(f'[ERROR] Failed to read .env file: {e}')
 
 	def get(self, key) -> str:
 		if key in self._data:

@@ -8,10 +8,10 @@ class GpsClient:
 	_gpsData = MicropyGPS()
 	_gpsModuleUART = UART(0)
 
-	def __init__(self, rxPin: int, txPin: int):
+	def __init__(self, rxPin: int, txPin: int) -> None:
 		self._gpsModuleUART.init(baudrate=9600, tx=Pin(txPin), rx=Pin(rxPin))
 
-	def get_location(self):
+	def get_location(self) -> LocationDTO | None:
 		location = None
 
 		while (self._gpsModuleUART.read()):
@@ -37,7 +37,7 @@ class GpsClient:
 							self._gpsData.satellites_in_use
 						)
 		except Exception as error:
-				print('[GpsClient][get_location]: ' + str(error))
+			print("[GPS] An exception occurred:", type(error).__name__)
 
 		return location
 
