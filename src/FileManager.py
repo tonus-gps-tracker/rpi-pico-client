@@ -1,3 +1,5 @@
+from io import TextIOWrapper
+import _thread
 import uos
 import time
 import json
@@ -8,6 +10,8 @@ class FileManager:
 
 	_currentFile = None
 	_currentFileName = None
+
+	current_file_lock = _thread.allocate_lock()
 
 	def read_metadata(self, file) -> dict:
 		metadata = FileMetadataDTO().get()
@@ -21,12 +25,12 @@ class FileManager:
 		return metadata
 
 	def is_file_open(self, fileName: str) -> bool:
-		return self._currentFile != None and self._currentFileName == fileName
+		return fileName != '' and self._currentFile != None and self._currentFileName == fileName
 
-	def get_current_file(self):
+	def get_current_file(self) -> TextIOWrapper | None:
 		return self._currentFile
 
-	def backup(self, filePath: str) -> None:
+	def backup(self, filePath: str):
 		uos.rename(filePath, 'backup/' + filePath.split('/')[1])
 
 	def update_metadata(self, file, dataReadedLengh = 0):
@@ -34,7 +38,7 @@ class FileManager:
 		file.seek(0)
 		file.write(str(FileMetadataDTO(metadata['last_readed'] + dataReadedLengh)) + '\n')
 
-	def get_file_by_timestamp(self, timestamp: int):
+	def get_file_by_timestamp(self, timestamp: int) -> TextIOWrapper:
 		year, month, day, _, _, _, _, _ = time.localtime(timestamp)
 
 		fileName = f'data/{year}-{common.lpad(str(month), 2, '0')}-{common.lpad(str(day), 2, '0')}.txt'
@@ -49,7 +53,6 @@ class FileManager:
 			self._currentFile = None
 
 		if self._currentFile == None:
-			print('abriu o arquivo')
 			file = open(fileName, 'r+')
 			self._currentFile = file
 			self._currentFileName = fileName
@@ -60,13 +63,13 @@ class FileManager:
 		file.seek(0, 2)
 		file.write(data)
 
-	def get_oldest_file_name(self):
+	def get_oldest_file_name(self) -> str:
 		files = sorted(uos.listdir('data'))
 
 		if files:
 			return files[0]
 
-		return None
+		return ''
 
 	def file_exists(self, path: str) -> bool:
 		try:

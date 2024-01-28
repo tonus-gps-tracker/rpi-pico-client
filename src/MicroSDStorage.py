@@ -5,7 +5,7 @@ from libs.SDCard import SDCard
 
 env = Dotenv()
 
-class Storage:
+class MicroSDStorage:
 
 	def __init__(self):
 		cs = Pin(int(env.get('MICROSD_CS_PIN')), Pin.OUT)

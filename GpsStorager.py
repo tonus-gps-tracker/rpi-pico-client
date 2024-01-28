@@ -5,7 +5,7 @@ from src.FileManager import FileManager
 
 env = Dotenv()
 
-class Core0:
+class GpsStorager:
 
 	def __init__(self, fileManager: FileManager):
 		self._fileManager = fileManager
@@ -20,4 +20,4 @@ class Core0:
 				self._fileManager.append(file, str(location) + '\n')
 				print(location)
 
-			time.sleep(5)
+			time.sleep(1)
