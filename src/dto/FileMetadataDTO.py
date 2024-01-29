@@ -20,6 +20,6 @@ class FileMetadataDTO:
 			'reserved': ''
 		}
 
-		metadata['reserved'] = ' ' * (int(env.get('METADATA_LENGTH')) - len(json.dumps(metadata).encode('utf-8')))
+		metadata['reserved'] = ' ' * (int(env.get('GPS_LOG_FILE_METADATA_LENGTH')) - len(json.dumps(metadata).encode('utf-8')))
 
 		return metadata

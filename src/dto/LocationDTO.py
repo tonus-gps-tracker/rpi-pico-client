@@ -9,4 +9,4 @@ class LocationDTO:
 		self.nSatellites = nSatellites
 
 	def __str__(self):
-		return f'{self.timestamp},{self.latitude},{self.longitude},{self.altitude},{round(self.speed, 2)},{self.nSatellites}'
+		return f'{self.timestamp},{self.latitude},{self.longitude},{self.altitude},{'{:.2f}'.format(self.speed)},{self.nSatellites}'

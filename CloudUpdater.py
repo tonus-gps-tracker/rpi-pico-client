@@ -1,4 +1,3 @@
-from io import TextIOWrapper
 from libs.Dotenv import Dotenv
 from src.FileManager import FileManager
 import utime

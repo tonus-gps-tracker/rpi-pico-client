@@ -1,4 +1,3 @@
-from io import TextIOWrapper
 import _thread
 import uos
 import time
@@ -27,7 +26,7 @@ class FileManager:
 	def is_file_open(self, fileName: str) -> bool:
 		return fileName != '' and self._currentFile != None and self._currentFileName == fileName
 
-	def get_current_file(self) -> TextIOWrapper | None:
+	def get_current_file(self):
 		return self._currentFile
 
 	def backup(self, filePath: str):
@@ -38,7 +37,7 @@ class FileManager:
 		file.seek(0)
 		file.write(str(FileMetadataDTO(metadata['last_readed'] + dataReadedLengh)) + '\n')
 
-	def get_file_by_timestamp(self, timestamp: int) -> TextIOWrapper:
+	def get_file_by_timestamp(self, timestamp: int):
 		year, month, day, _, _, _, _, _ = time.localtime(timestamp)
 
 		fileName = f'data/{year}-{common.lpad(str(month), 2, '0')}-{common.lpad(str(day), 2, '0')}.txt'
@@ -62,6 +61,7 @@ class FileManager:
 	def append(self, file, data):
 		file.seek(0, 2)
 		file.write(data)
+		file.flush()
 
 	def get_oldest_file_name(self) -> str:
 		files = sorted(uos.listdir('data'))
@@ -81,6 +81,8 @@ class FileManager:
 	def close_current_file(self):
 		if self._currentFile != None:
 			self._currentFile.close()
+			self._currentFile = None
+			self._currentFileName = None
 
 	def __del__(self):
 		self.close_current_file()
