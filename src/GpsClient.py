@@ -6,39 +6,39 @@ from math import sin, cos, sqrt, atan2, radians
 
 class GpsClient:
 
-	_gpsData = MicropyGPS()
-	_gpsModuleUART = UART(0)
+	_gps_data = MicropyGPS()
+	_uart = UART(0)
 
-	def __init__(self, rxPin: int, txPin: int) -> None:
-		self._gpsModuleUART.init(baudrate=9600, tx=Pin(txPin), rx=Pin(rxPin))
+	def __init__(self, rx_pin: int, tx_pin: int) -> None:
+		self._uart.init(baudrate=9600, tx=Pin(tx_pin), rx=Pin(rx_pin))
 
 	def get_location(self) -> LocationDTO | None:
 		location = None
 
-		while (self._gpsModuleUART.read()):
+		while (self._uart.read()):
 			pass
 
 		try:
 			while location == None:
-				chars = self._gpsModuleUART.read(1024)
+				chars = self._uart.read(1024)
 
 				if chars != None:
 					chars = chars.decode('utf-8')
 
 					for char in chars:
-						self._gpsData.update(char)
+						self._gps_data.update(char)
 
-					if self._gpsData.valid and self._gpsData.satellites_in_use:
+					if self._gps_data.valid and self._gps_data.satellites_in_use:
 						location = LocationDTO(
-							self.parse_date_time(self._gpsData.date_string(formatting='s_dmy'), self._gpsData.timestamp),
-							self.parse_latitude_longitude(self._gpsData.latitude),
-							self.parse_latitude_longitude(self._gpsData.longitude),
-							self._gpsData.altitude,
-							self._gpsData.speed[2],
-							self._gpsData.satellites_in_use
+							self.parse_date_time(self._gps_data.date_string(formatting='s_dmy'), self._gps_data.timestamp),
+							self.parse_latitude_longitude(self._gps_data.latitude),
+							self.parse_latitude_longitude(self._gps_data.longitude),
+							self._gps_data.altitude,
+							self._gps_data.speed[2],
+							self._gps_data.satellites_in_use
 						)
 		except Exception as error:
-			print("[GPS] An exception occurred:", type(error).__name__)
+			print('[GPS] An exception occurred:', type(error).__name__)
 
 		return location
 

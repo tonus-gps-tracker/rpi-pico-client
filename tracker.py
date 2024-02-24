@@ -8,36 +8,36 @@ from src.GpsLogManager import GpsLogManager
 
 env = Dotenv()
 storage = MicroSDStorage()
-gpsLogManager = GpsLogManager()
+gps_log_manager = GpsLogManager()
 
-shouldStop = False
-isCloudUpdaterRunning = True
+should_stop = False
+is_cloud_updater_running = True
 
-def cloudUpdaterThread(gpsLogManager: GpsLogManager):
-	global shouldStop
-	global isCloudUpdaterRunning
+def cloud_updater_thread(gps_log_manager: GpsLogManager):
+	global should_stop
+	global is_cloud_updater_running
 
-	cloudUpdater = CloudUpdater(gpsLogManager)
+	cloud_updater = CloudUpdater(gps_log_manager)
 
-	while not shouldStop:
-		cloudUpdater.run()
+	while not should_stop:
+		cloud_updater.run()
 		time.sleep(int(env.get('GPRS_UPLOAD_INTERVAL')))
 
-	isCloudUpdaterRunning = False
+	is_cloud_updater_running = False
 
 try:
-	_thread.start_new_thread(cloudUpdaterThread, (gpsLogManager,))
+	_thread.start_new_thread(cloud_updater_thread, (gps_log_manager,))
 
-	gpsStorager = GpsStorager(gpsLogManager)
+	gps_storager = GpsStorager(gps_log_manager)
 
-	while not shouldStop:
-		gpsStorager.run()
+	while not should_stop:
+		gps_storager.run()
 		time.sleep(int(env.get('GPS_LOG_INTERVAL')))
 except KeyboardInterrupt:
-	shouldStop = True
+	should_stop = True
 
-	while isCloudUpdaterRunning:
+	while is_cloud_updater_running:
 		time.sleep(1)
 
-	gpsLogManager.close_current_file()
+	gps_log_manager.close_current_file()
 	storage.umount()

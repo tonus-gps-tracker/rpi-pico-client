@@ -8,30 +8,30 @@ from src.dto.LocationDTO import LocationDTO
 
 class GpsLogManager:
 
-	_currentFile = None
-	_currentFileName = None
+	_current_file = None
+	_current_file_name = None
 
 	current_file_lock = _thread.allocate_lock()
 
 	def _update_current_file_by_timestamp(self, timestamp: int):
 		year, month, day, _, _, _, _, _ = time.localtime(timestamp)
 
-		fileName = f'{year}-{common.lpad(str(month), 2, '0')}-{common.lpad(str(day), 2, '0')}.txt'
-		filePath = f'data/{fileName}'
+		file_name = f'{year}-{common.lpad(str(month), 2, '0')}-{common.lpad(str(day), 2, '0')}.txt'
+		file_path = f'data/{file_name}'
 
-		if not self._file_exists(filePath):
-			file = open(filePath, 'w+')
+		if not self._file_exists(file_path):
+			file = open(file_path, 'w+')
 			self.update_metadata(file)
 			file.close()
 
-		if self._currentFile != None and self._currentFileName != fileName:
-			self._currentFile.close()
-			self._currentFile = None
+		if self._current_file != None and self._current_file_name != file_name:
+			self._current_file.close()
+			self._current_file = None
 
-		if self._currentFile == None:
-			file = open(filePath, 'r+')
-			self._currentFile = file
-			self._currentFileName = fileName
+		if self._current_file == None:
+			file = open(file_path, 'r+')
+			self._current_file = file
+			self._current_file_name = file_name
 
 	def _file_exists(self, path: str) -> bool:
 		try:
@@ -40,17 +40,17 @@ class GpsLogManager:
 		except OSError:
 			return False
 
-	def is_file_open(self, fileName: str) -> bool:
-		return fileName != '' and self._currentFile != None and self._currentFileName == fileName
+	def is_file_open(self, file_name: str) -> bool:
+		return file_name != '' and self._current_file != None and self._current_file_name == file_name
 
 	def get_current_file(self):
-		return self._currentFile
+		return self._current_file
 
 	def close_current_file(self):
-		if self._currentFile != None:
-			self._currentFile.close()
-			self._currentFile = None
-			self._currentFileName = None
+		if self._current_file != None:
+			self._current_file.close()
+			self._current_file = None
+			self._current_file_name = None
 
 	def read_metadata(self, file) -> dict:
 		metadata = FileMetadataDTO().get()
@@ -63,17 +63,17 @@ class GpsLogManager:
 
 		return metadata
 
-	def update_metadata(self, file, dataReadedLengh = 0):
+	def update_metadata(self, file, data_readed_lengh = 0):
 		metadata = self.read_metadata(file)
 		file.seek(0)
-		file.write(str(FileMetadataDTO(metadata['last_readed'] + dataReadedLengh)) + '\n')
+		file.write(str(FileMetadataDTO(metadata['last_readed'] + data_readed_lengh)) + '\n')
 		file.flush()
 
 	def write(self, location: LocationDTO):
 		self._update_current_file_by_timestamp(location.timestamp)
 
-		if self._currentFile != None:
+		if self._current_file != None:
 			with (self.current_file_lock):
-				self._currentFile.seek(0, 2)
-				self._currentFile.write(str(location) + '\n')
-				self._currentFile.flush()
+				self._current_file.seek(0, 2)
+				self._current_file.write(str(location) + '\n')
+				self._current_file.flush()

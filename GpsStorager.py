@@ -6,26 +6,26 @@ env = Dotenv()
 
 class GpsStorager:
 
-	_lastTimestamp = 0
-	_lastLatitude = 0.0
-	_lastLongitude = 0.0
+	_last_timestamp = 0
+	_last_latitude = 0.0
+	_last_longitude = 0.0
 
-	def __init__(self, gpsLogManager: GpsLogManager):
-		self._gpsLogManager = gpsLogManager
-		self._gpsClient = GpsClient(int(env.get('GPS_RX_PIN')), int(env.get('GPS_TX_PIN')))
+	def __init__(self, gps_log_manager: GpsLogManager):
+		self._gps_log_manager = gps_log_manager
+		self._gps_client = GpsClient(int(env.get('GPS_RX_PIN')), int(env.get('GPS_TX_PIN')))
 
 	def run(self):
-		location = self._gpsClient.get_location()
+		location = self._gps_client.get_location()
 
 		if location is None:
 			return
 
-		traveledDistance = self._gpsClient.distance(self._lastLatitude, self._lastLongitude, location.latitude, location.longitude)
-		elapsedTimeSinceLastUpdate = location.timestamp - self._lastTimestamp
+		traveled_distance = self._gps_client.distance(self._last_latitude, self._last_longitude, location.latitude, location.longitude)
+		elapsed_time_since_last_update = location.timestamp - self._last_timestamp
 
-		if (traveledDistance > int(env.get('GPS_LOG_DISTANCE_THRESHOLD')) or elapsedTimeSinceLastUpdate > int(env.get('GPS_LOG_TIMEOUT'))):
-			self._gpsLogManager.write(location)
+		if (traveled_distance > int(env.get('GPS_LOG_DISTANCE_THRESHOLD')) or elapsed_time_since_last_update > int(env.get('GPS_LOG_TIMEOUT'))):
+			self._gps_log_manager.write(location)
 
-			self._lastTimestamp = location.timestamp
-			self._lastLatitude = location.latitude
-			self._lastLongitude = location.longitude
+			self._last_timestamp = location.timestamp
+			self._last_latitude = location.latitude
+			self._last_longitude = location.longitude

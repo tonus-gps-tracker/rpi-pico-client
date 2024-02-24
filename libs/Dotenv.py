@@ -1,6 +1,6 @@
 """
-# Dotenv - Used to read and store values of a .env file
-# Designed to be used on Raspberry Pi Pico
+Dotenv - Used to read and store values of a .env file
+Designed to be used on Raspberry Pi Pico
 """
 
 class Dotenv:
