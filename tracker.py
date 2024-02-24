@@ -1,26 +1,43 @@
 import _thread
-import uos
+import time
 from GpsStorager import GpsStorager
 from CloudUpdater import CloudUpdater
 from libs.Dotenv import Dotenv
 from src.MicroSDStorage import MicroSDStorage
-from src.FileManager import FileManager
+from src.GpsLogManager import GpsLogManager
 
 env = Dotenv()
+storage = MicroSDStorage()
+gpsLogManager = GpsLogManager()
 
-MicroSDStorage()
+shouldStop = False
+isCloudUpdaterRunning = True
 
-fileManager = FileManager()
+def cloudUpdaterThread(gpsLogManager: GpsLogManager):
+	global shouldStop
+	global isCloudUpdaterRunning
+
+	cloudUpdater = CloudUpdater(gpsLogManager)
+
+	while not shouldStop:
+		cloudUpdater.run()
+		time.sleep(int(env.get('GPRS_UPLOAD_INTERVAL')))
+
+	isCloudUpdaterRunning = False
 
 try:
-	# cloudUpdater = CloudUpdater(fileManager)
-	# _thread.start_new_thread(cloudUpdater.run, ())
+	_thread.start_new_thread(cloudUpdaterThread, (gpsLogManager,))
 
-	gpsStorager = GpsStorager(fileManager)
-	gpsStorager.run()
+	gpsStorager = GpsStorager(gpsLogManager)
+
+	while not shouldStop:
+		gpsStorager.run()
+		time.sleep(int(env.get('GPS_LOG_INTERVAL')))
 except KeyboardInterrupt:
-	fileManager.close_current_file()
-	uos.umount(env.get('MICROSD_MOUNT_POINT'))
-	print('exited successfully')
+	shouldStop = True
 
-# TODO: Adicionar locker em manipulacao de arquivos (with)
+	while isCloudUpdaterRunning:
+		time.sleep(1)
+
+	gpsLogManager.close_current_file()
+	storage.umount()
