@@ -12,7 +12,7 @@ class GpsStorager:
 
 	def __init__(self, gps_log_manager: GpsLogManager):
 		self._gps_log_manager = gps_log_manager
-		self._gps_client = GpsClient(int(env.get('GPS_RX_PIN')), int(env.get('GPS_TX_PIN')))
+		self._gps_client = GpsClient(int(env.get('NEO6M_RX_PIN')), int(env.get('NEO6M_TX_PIN')))
 
 	def run(self):
 		location = self._gps_client.get_location()
