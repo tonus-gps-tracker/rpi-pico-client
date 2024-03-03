@@ -11,7 +11,7 @@ class GpsLogManager:
 	_current_file = None
 	_current_file_name = None
 
-	current_file_lock = _thread.allocate_lock()
+	file_manager_lock = _thread.allocate_lock()
 
 	def _update_current_file_by_timestamp(self, timestamp: int):
 		year, month, day, _, _, _, _, _ = time.localtime(timestamp)
@@ -73,7 +73,6 @@ class GpsLogManager:
 		self._update_current_file_by_timestamp(location.timestamp)
 
 		if self._current_file != None:
-			with (self.current_file_lock):
-				self._current_file.seek(0, 2)
-				self._current_file.write(str(location) + '\n')
-				self._current_file.flush()
+			self._current_file.seek(0, 2)
+			self._current_file.write(str(location) + '\n')
+			self._current_file.flush()

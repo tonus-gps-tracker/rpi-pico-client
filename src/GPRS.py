@@ -6,11 +6,22 @@ env = Dotenv()
 
 class GPRS:
 
+	_log = False
+	_ready = False
+
 	HTTP_STATUS_OK = 200
 
 	def __init__(self, should_log=False) -> None:
+		self._log = should_log
 		self.sim800l = SIM800L(int(env.get('SIM800L_RX_PIN')), int(env.get('SIM800L_TX_PIN')))
 		self.sim800l.should_log(should_log)
+
+	def restart_service(self, reason: str):
+		if self._log:
+			print(f'[GPRS] Restarting service: {reason}')
+
+		self._ready = False
+		self.sim800l.AT_plusCFUN()
 
 	def is_service_available(self) -> bool:
 		return self.sim800l.AT_plusCSQ() >= int(env.get('GPRS_MINIMUM_SIGNAL_QUALITY')) and self.sim800l.AT_plusCOPS() != ''
@@ -58,6 +69,8 @@ class GPRS:
 		api_secret = env.get('API_SECRET')
 
 		data_write_time = 80 * int(env.get('GPRS_LINES_PER_REQUEST'))
+		if data_write_time < 1000:
+			data_write_time = 1000
 
 		if not self.sim800l.AT_plusHTTPINIT() or \
 			not self.sim800l.AT_plusHTTPPARA('CID', '1') or \
@@ -65,6 +78,7 @@ class GPRS:
 			not self.sim800l.AT_plusHTTPPARA('USERDATA', f'x-api-secret: {api_secret}') or \
 			not self.sim800l.AT_plusHTTPPARA('CONTENT', 'application/text') or \
 			not self.sim800l.AT_plusHTTPDATA(len(data), data_write_time):
+				self.sim800l.AT('AT+HTTPREAD')
 				return False
 
 		start_time = time.ticks_ms()
@@ -79,5 +93,28 @@ class GPRS:
 			status_code != self.HTTP_STATUS_OK or \
 			not self.sim800l.AT_plusHTTPTERM():
 				return False
+
+		return True
+
+	def upload(self, data: str) -> bool:
+		attempts = 0
+		while not self.is_service_available():
+			if attempts > 60:
+				self.restart_service('service unavailable')
+				return False
+
+			time.sleep(1)
+			attempts = attempts + 1
+
+		if not self._ready:
+			if self.setup():
+				self._ready = True
+			else:
+				self.restart_service('failed on setup')
+				return False
+
+		if not self.post_request(data):
+			self.restart_service('failed on post request')
+			return False
 
 		return True

@@ -11,29 +11,33 @@ storage = MicroSDStorage()
 gps_log_manager = GpsLogManager()
 
 should_stop = False
-is_cloud_updater_running = True
+is_cloud_updater_running = False
 
-def cloud_updater_thread(gps_log_manager: GpsLogManager):
-	global should_stop
+def cloud_updater_thread():
 	global is_cloud_updater_running
 
-	cloud_updater = CloudUpdater(gps_log_manager)
+	try:
+		is_cloud_updater_running = True
 
-	while not should_stop:
-		cloud_updater.run()
-		time.sleep(int(env.get('GPRS_UPLOAD_INTERVAL')))
+		cloud_updater = CloudUpdater(gps_log_manager)
 
-	is_cloud_updater_running = False
+		while not should_stop:
+			cloud_updater.run()
+			time.sleep(int(env.get('GPRS_UPLOAD_INTERVAL')))
+
+		is_cloud_updater_running = False
+	except:
+		is_cloud_updater_running = False
 
 try:
-	_thread.start_new_thread(cloud_updater_thread, (gps_log_manager,))
+	_thread.start_new_thread(cloud_updater_thread, ())
 
 	gps_storager = GpsStorager(gps_log_manager)
 
 	while not should_stop:
 		gps_storager.run()
 		time.sleep(int(env.get('GPS_LOG_INTERVAL')))
-except KeyboardInterrupt:
+except:
 	should_stop = True
 
 	while is_cloud_updater_running:

@@ -24,7 +24,8 @@ class GpsStorager:
 		elapsed_time_since_last_update = location.timestamp - self._last_timestamp
 
 		if (traveled_distance > int(env.get('GPS_LOG_DISTANCE_THRESHOLD')) or elapsed_time_since_last_update > int(env.get('GPS_LOG_TIMEOUT'))):
-			self._gps_log_manager.write(location)
+			with (self._gps_log_manager.file_manager_lock):
+				self._gps_log_manager.write(location)
 
 			self._last_timestamp = location.timestamp
 			self._last_latitude = location.latitude
