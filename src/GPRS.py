@@ -1,4 +1,5 @@
 import time
+import src.common as common
 from libs.Dotenv import Dotenv
 from libs.SIM800L import SIM800L
 
@@ -6,18 +7,15 @@ env = Dotenv()
 
 class GPRS:
 
-	_log = False
 	_ready = False
 
 	HTTP_STATUS_OK = 200
 
-	def __init__(self, should_log=False) -> None:
-		self._log = should_log
+	def __init__(self):
 		self.sim800l = SIM800L(int(env.get('SIM800L_RX_PIN')), int(env.get('SIM800L_TX_PIN')))
-		self.sim800l.should_log(should_log)
 
 	def restart_service(self, reason: str):
-		if self._log:
+		if common.debug():
 			print(f'[GPRS] Restarting service: {reason}')
 
 		self._ready = False

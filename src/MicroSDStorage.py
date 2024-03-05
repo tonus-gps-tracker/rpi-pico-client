@@ -26,5 +26,5 @@ class MicroSDStorage:
 		uos.mount(vfs, env.get('MICROSD_MOUNT_POINT'))
 		uos.chdir(env.get('MICROSD_MOUNT_POINT'))
 
-	def umount(self):
+	def umount(self) -> None:
 		uos.umount(env.get('MICROSD_MOUNT_POINT'))

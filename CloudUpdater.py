@@ -11,9 +11,12 @@ class CloudUpdater:
 		self._gps_log_manager = gps_log_manager
 		self._gprs = GPRS()
 
-	def run(self):
+	def run(self) -> None:
+		if self._gps_log_manager.get_current_day_file() is None:
+			return
+
 		with (self._gps_log_manager.file_manager_lock):
-			file, is_file_open = self.get_file()
+			file, file_name, is_file_open = self.get_file()
 
 		if file is None:
 			return
@@ -34,8 +37,8 @@ class CloudUpdater:
 			with (self._gps_log_manager.file_manager_lock):
 				file.close()
 
-			# if end_file:
-			# 	self.backup(data/file.name) # TODO: erro no file.name
+			if end_file:
+				self.backup(f'data/{file_name}')
 
 	def get_file(self):
 		oldest_file_name = self.get_oldest_file_name()
@@ -43,13 +46,13 @@ class CloudUpdater:
 
 		if not is_file_open:
 			if oldest_file_name is '':
-				return None, False
+				return None, '', False
 
 			file = open('data/' + oldest_file_name, 'r+')
 		else:
-			file = self._gps_log_manager.get_current_file()
+			file = self._gps_log_manager.get_current_day_file()
 
-		return file, is_file_open
+		return file, oldest_file_name, is_file_open
 
 	def get_oldest_file_name(self) -> str:
 		files = uos.listdir('data')
@@ -61,7 +64,7 @@ class CloudUpdater:
 
 		return ''
 
-	def get_data(self, file):
+	def get_data(self, file) -> tuple[str, bool]:
 		metadados = self._gps_log_manager.read_metadata(file)
 		file.seek(int(env.get('GPS_LOG_FILE_METADATA_LENGTH')) + 1 + metadados['last_readed'])
 
@@ -80,5 +83,5 @@ class CloudUpdater:
 
 		return data, end_file
 
-	def backup(self, file_path: str):
+	def backup(self, file_path: str) -> None:
 		uos.rename(file_path, 'backup/' + file_path.split('/')[1])

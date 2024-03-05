@@ -1,13 +1,12 @@
 import time
+import src.common as common
 from machine import UART, Pin
 
 class SIM800L:
 
-	_log = False
-
 	_uart = UART(1)
 
-	def __init__(self, rx_pin: int, tx_pin: int) -> None:
+	def __init__(self, rx_pin: int, tx_pin: int):
 		self._uart.init(baudrate=9600, tx=Pin(tx_pin), rx=Pin(rx_pin))
 
 	def _clear_buffer(self) -> None:
@@ -15,13 +14,10 @@ class SIM800L:
 			pass
 
 	def _parse_bool_response(self, bool_response: bool) -> bool:
-		if self._log:
+		if common.debug():
 			print(f'[SIM800L][BoolResponse] {bool_response}')
 
 		return bool_response
-
-	def should_log(self, log) -> None:
-		self._log = log
 
 	def _read(self, timeout=1000) -> list:
 		start_time = time.ticks_ms()
@@ -42,13 +38,13 @@ class SIM800L:
 	def AT(self, command: str) -> list:
 		self._clear_buffer()
 
-		if self._log:
+		if common.debug():
 			print(f'[SIM800L][Command] {command}')
 
 		self._uart.write((command + '\r\n').encode('utf-8'))
 
 		response = self._read()
-		if self._log:
+		if common.debug():
 			print(f'[SIM800L][Response] {response}')
 
 		return response
@@ -124,7 +120,7 @@ class SIM800L:
 			return status, False
 
 		response = self._read(10000)
-		if self._log:
+		if common.debug():
 			print(f'[SIM800L][Response] {response}')
 
 		if self._parse_bool_response(len(response) == 3):

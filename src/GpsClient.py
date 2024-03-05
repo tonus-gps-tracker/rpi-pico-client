@@ -38,7 +38,7 @@ class GpsClient:
 							self._gps_data.satellites_in_use
 						)
 		except Exception as error:
-			print('[GPS] An exception occurred:', type(error).__name__)
+			print('[NEO6M] An exception occurred:', type(error).__name__, error)
 
 		return location
 

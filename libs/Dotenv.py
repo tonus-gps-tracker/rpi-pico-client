@@ -15,7 +15,7 @@ class Dotenv:
 
 		return cls._instance
 
-	def _load(self):
+	def _load(self) -> None:
 		try:
 			with open('.env', 'r') as file:
 				for line in file:
