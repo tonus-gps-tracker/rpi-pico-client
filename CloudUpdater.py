@@ -24,10 +24,7 @@ class CloudUpdater:
 		with (self._gps_log_manager.file_manager_lock):
 			data, end_file = self.get_data(file)
 
-		if data is '':
-			return
-
-		if self._gprs.upload(data):
+		if data != '' and self._gprs.upload(data):
 			data_length = len(data.encode('utf-8'))
 
 			with (self._gps_log_manager.file_manager_lock):
