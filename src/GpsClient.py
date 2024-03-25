@@ -15,10 +15,10 @@ class GpsClient:
 	def get_location(self) -> LocationDTO | None:
 		location = None
 
-		while (self._uart.read()):
-			pass
-
 		try:
+			while (self._uart.read()):
+				pass
+
 			while location == None:
 				chars = self._uart.read(1024)
 

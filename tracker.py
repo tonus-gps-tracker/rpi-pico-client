@@ -44,7 +44,7 @@ def cloud_updater_thread():
 		while not should_stop:
 			cloud_updater.run()
 			time.sleep(int(env.get('GPRS_UPLOAD_INTERVAL')))
-	except Exception as error:
+	except KeyboardInterrupt as error:
 		print('[CloudUpdaterThread] An exception occurred:', type(error).__name__, error)
 		should_stop = True
 

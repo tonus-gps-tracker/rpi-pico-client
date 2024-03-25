@@ -12,30 +12,33 @@ class CloudUpdater:
 		self._gprs = GPRS()
 
 	def run(self) -> None:
-		if self._gps_log_manager.get_current_day_file() is None:
-			return
-
-		with (self._gps_log_manager.file_manager_lock):
-			file, file_name, is_file_open = self.get_file()
-
-		if file is None:
-			return
-
-		with (self._gps_log_manager.file_manager_lock):
-			data, end_file = self.get_data(file)
-
-		if data != '' and self._gprs.upload(data):
-			data_length = len(data.encode('utf-8'))
+		try:
+			if self._gps_log_manager.get_current_day_file() is None:
+				return
 
 			with (self._gps_log_manager.file_manager_lock):
-				self._gps_log_manager.update_metadata(file, data_length)
+				file, file_name, is_file_open = self.get_file()
 
-		if not is_file_open:
+			if file is None:
+				return
+
 			with (self._gps_log_manager.file_manager_lock):
-				file.close()
+				data, end_file = self.get_data(file)
 
-			if end_file:
-				self.backup(f'data/{file_name}')
+			if data != '' and self._gprs.upload(data):
+				data_length = len(data.encode('utf-8'))
+
+				with (self._gps_log_manager.file_manager_lock):
+					self._gps_log_manager.update_metadata(file, data_length)
+
+			if not is_file_open:
+				with (self._gps_log_manager.file_manager_lock):
+					file.close()
+
+				if end_file:
+					self.backup(f'data/{file_name}')
+		except Exception as error:
+			print('[CloudUpdater] An exception occurred:', type(error).__name__, error)
 
 	def get_file(self):
 		oldest_file_name = self.get_oldest_file_name()

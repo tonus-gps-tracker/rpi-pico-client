@@ -55,7 +55,7 @@ class GPRS:
 		while self.get_ip() == '':
 			attempts = attempts + 1
 
-			if attempts > 60:
+			if attempts > 30:
 				return False
 
 			time.sleep(1)
@@ -97,7 +97,7 @@ class GPRS:
 	def upload(self, data: str) -> bool:
 		attempts = 0
 		while not self.is_service_available():
-			if attempts > 60:
+			if attempts > 30:
 				self.restart_service('service unavailable')
 				return False
 
