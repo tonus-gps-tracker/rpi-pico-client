@@ -23,7 +23,7 @@ class GpsStorager:
 			if location is None:
 				return
 
-			if (True or self.is_moving(location) or self.last_log_timed_out(location)):
+			if (self.is_moving(location) or self.last_log_timed_out(location)):
 				if common.debug():
 					print(f'[NEO6M] {location}')
 
