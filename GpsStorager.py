@@ -41,9 +41,9 @@ class GpsStorager:
 
 		if location.n_satellites <= 3:
 			distance_threshold = 20.0
-		elif location.n_satellites <= 4:
-			distance_threshold = 15.0
 		elif location.n_satellites <= 5:
+			distance_threshold = 15.0
+		elif location.n_satellites <= 7:
 			distance_threshold = 10.0
 		else:
 			distance_threshold = 5.0
