@@ -40,13 +40,13 @@ class GpsStorager:
 		traveled_distance = self._gps_client.distance(self._last_latitude, self._last_longitude, location.latitude, location.longitude)
 
 		if location.n_satellites <= 5:
-			distance_threshold = 20.0
+			distance_threshold = 16.0
 		elif location.n_satellites <= 6:
 			distance_threshold = 15.0
 		elif location.n_satellites <= 7:
-			distance_threshold = 10.0
+			distance_threshold = 14.0
 		else:
-			distance_threshold = 5.0
+			distance_threshold = 10.0
 
 		return traveled_distance > distance_threshold
 
