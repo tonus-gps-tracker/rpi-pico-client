@@ -39,9 +39,9 @@ class GpsStorager:
 	def is_moving(self, location: LocationDTO) -> bool:
 		traveled_distance = self._gps_client.distance(self._last_latitude, self._last_longitude, location.latitude, location.longitude)
 
-		if location.n_satellites <= 3:
+		if location.n_satellites <= 5:
 			distance_threshold = 20.0
-		elif location.n_satellites <= 5:
+		elif location.n_satellites <= 6:
 			distance_threshold = 15.0
 		elif location.n_satellites <= 7:
 			distance_threshold = 10.0
