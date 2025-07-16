@@ -6,6 +6,8 @@ from math import sin, cos, sqrt, atan2, radians
 
 class GpsClient:
 
+	mktimeMinTimestamp = 946684800
+
 	_gps_data = MicropyGPS()
 	_uart = UART(0)
 

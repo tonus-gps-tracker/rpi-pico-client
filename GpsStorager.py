@@ -20,7 +20,7 @@ class GpsStorager:
 		try:
 			location = self._gps_client.get_location()
 
-			if location is None:
+			if location is None or location.timestamp < self._gps_client.mktimeMinTimestamp:
 				return
 
 			if (self.is_moving(location) or self.last_log_timed_out(location)):
